@@ -1,0 +1,67 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+   <meta charset="UTF-8">
+   <title>idb_vanilla.js Test</title>
+</head>
+<body>
+   <h1>Testing idb_vanilla.js Library</h1>
+   <div id="output"></div>
+   
+   <script src="idb_vanilla.js"></script>
+   <script>
+     async function test() {
+       try {
+         console.log("Starting idb.js test...");
+         
+         const db = await idb.openCostsDB("costsdb", 1);
+         console.log("Database opened successfully");
+         
+         const result1 = await db.addCost({
+           sum: 200, 
+           currency: "USD", 
+           category: "FOOD",
+           description: "pizza"
+         });
+         console.log("Added cost 1:", result1);
+         
+         const result2 = await db.addCost({
+           sum: 400, 
+           currency: "USD", 
+           category: "CAR",
+           description: "fuel"
+         });
+         console.log("Added cost 2:", result2);
+         
+         if(db) {
+           console.log("✅ Creating db succeeded");
+           document.getElementById('output').innerHTML += "✅ Creating db succeeded<br>";
+         }
+         if(result1) {
+           console.log("✅ Adding 1st cost item succeeded");
+           document.getElementById('output').innerHTML += "✅ Adding 1st cost item succeeded<br>";
+         }
+         if(result2) {
+           console.log("✅ Adding 2nd cost item succeeded");
+           document.getElementById('output').innerHTML += "✅ Adding 2nd cost item succeeded<br>";
+         }
+         
+         // Test getReport function
+         const currentDate = new Date();
+         const report = await db.getReport(currentDate.getFullYear(), currentDate.getMonth() + 1, "USD");
+         
+         console.log("📊 Monthly report:", report);
+         
+         document.getElementById('output').innerHTML += `📊 Generated report for ${currentDate.getFullYear()}-${currentDate.getMonth() + 1}<br>`;
+         document.getElementById('output').innerHTML += `📈 Total costs: ${report.total.total} ${report.total.currency}<br>`;
+         
+       } catch (error) {
+         console.error("❌ Test failed:", error);
+         document.getElementById('output').innerHTML += `❌ Test failed: ${error.message}<br>`;
+       }
+     }
+     
+     test();
+   </script>
+</body>
+</html>
