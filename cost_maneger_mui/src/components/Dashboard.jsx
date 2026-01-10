@@ -148,8 +148,16 @@ const Dashboard = ({ refreshTrigger }) => {
 
     /**
      * Format currency for display
+     * Handles edge cases like undefined or NaN values
      */
     const formatCurrency = (amount) => {
+        // Handle undefined, null, or NaN values
+        if (amount === undefined || amount === null || isNaN(amount)) {
+            return new Intl.NumberFormat('en-US', {
+                style: 'currency',
+                currency: displayCurrency
+            }).format(0);
+        }
         return new Intl.NumberFormat('en-US', {
             style: 'currency',
             currency: displayCurrency
@@ -179,33 +187,38 @@ const Dashboard = ({ refreshTrigger }) => {
     }
 
     return (
-        <Box sx={{ p: 3 }}>
+        <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
             {/* Filters */}
-            <Paper elevation={2} sx={{ p: 3, mb: 3 }}>
-                <Grid container spacing={2} alignItems="center">
-                    <Grid item xs={12} sm={4}>
+            <Paper elevation={2} sx={{ p: { xs: 1.5, sm: 2, md: 3 }, mb: { xs: 2, sm: 3 }, borderRadius: 2 }}>
+                <Grid container spacing={{ xs: 1.5, sm: 2 }} alignItems="center">
+                    <Grid item xs={4} sm={4}>
                         <TextField
                             fullWidth
                             select
                             label="Month"
                             value={selectedMonth}
                             onChange={(e) => setSelectedMonth(e.target.value)}
+                            size="small"
+                            InputLabelProps={{ sx: { fontSize: { xs: '0.8rem', sm: '1rem' } } }}
                         >
                             {MONTHS.map((month, index) => (
                                 <MenuItem key={month} value={index}>
-                                    {month}
+                                    <Box sx={{ display: { xs: 'none', sm: 'block' } }}>{month}</Box>
+                                    <Box sx={{ display: { xs: 'block', sm: 'none' } }}>{month.substring(0, 3)}</Box>
                                 </MenuItem>
                             ))}
                         </TextField>
                     </Grid>
 
-                    <Grid item xs={12} sm={4}>
+                    <Grid item xs={4} sm={4}>
                         <TextField
                             fullWidth
                             select
                             label="Year"
                             value={selectedYear}
                             onChange={(e) => setSelectedYear(e.target.value)}
+                            size="small"
+                            InputLabelProps={{ sx: { fontSize: { xs: '0.8rem', sm: '1rem' } } }}
                         >
                             {yearOptions.map((year) => (
                                 <MenuItem key={year} value={year}>
@@ -215,15 +228,17 @@ const Dashboard = ({ refreshTrigger }) => {
                         </TextField>
                     </Grid>
 
-                    <Grid item xs={12} sm={4}>
+                    <Grid item xs={4} sm={4}>
                         <TextField
                             fullWidth
                             select
-                            label="Display Currency"
+                            label="Currency"
                             value={displayCurrency}
                             onChange={(e) => setDisplayCurrency(e.target.value)}
+                            size="small"
+                            InputLabelProps={{ sx: { fontSize: { xs: '0.8rem', sm: '1rem' } } }}
                         >
-                            {['USD', 'EUR', 'GBP', 'ILS'].map((currency) => (
+                            {['USD', 'EURO', 'GBP', 'ILS'].map((currency) => (
                                 <MenuItem key={currency} value={currency}>
                                     {currency}
                                 </MenuItem>
@@ -240,23 +255,38 @@ const Dashboard = ({ refreshTrigger }) => {
             )}
 
             {/* Tabs for different views */}
-            <Paper elevation={2} sx={{ mb: 3 }}>
-                <Tabs value={activeTab} onChange={(e, newValue) => setActiveTab(newValue)}>
-                    <Tab label="Monthly Report" />
-                    <Tab label="Category Chart" />
-                    <Tab label="Yearly Overview" />
+            <Paper elevation={2} sx={{ mb: { xs: 2, sm: 3 }, borderRadius: 2 }}>
+                <Tabs
+                    value={activeTab}
+                    onChange={(e, newValue) => setActiveTab(newValue)}
+                    variant="fullWidth"
+                    sx={{
+                        '& .MuiTab-root': {
+                            fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                            minHeight: { xs: 48, sm: 56 },
+                            py: { xs: 1, sm: 1.5 },
+                            px: { xs: 0.5, sm: 2 }
+                        }
+                    }}
+                >
+                    <Tab label={<Box sx={{ display: { xs: 'none', sm: 'block' } }}>Monthly Report</Box>}
+                        icon={<Box sx={{ display: { xs: 'block', sm: 'none' }, fontSize: '0.75rem' }}>Report</Box>} />
+                    <Tab label={<Box sx={{ display: { xs: 'none', sm: 'block' } }}>Category Chart</Box>}
+                        icon={<Box sx={{ display: { xs: 'block', sm: 'none' }, fontSize: '0.75rem' }}>Categories</Box>} />
+                    <Tab label={<Box sx={{ display: { xs: 'none', sm: 'block' } }}>Yearly Overview</Box>}
+                        icon={<Box sx={{ display: { xs: 'block', sm: 'none' }, fontSize: '0.75rem' }}>Yearly</Box>} />
                 </Tabs>
             </Paper>
 
             {/* Tab 0: Monthly Report */}
             {activeTab === 0 && (
                 <Box>
-                    <Card sx={{ mb: 3 }}>
-                        <CardContent>
-                            <Typography variant="h6" gutterBottom>
+                    <Card sx={{ mb: { xs: 2, sm: 3 }, borderRadius: 2 }}>
+                        <CardContent sx={{ p: { xs: 2, sm: 3 }, '&:last-child': { pb: { xs: 2, sm: 3 } } }}>
+                            <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                                 {MONTHS[selectedMonth]} {selectedYear} Summary
                             </Typography>
-                            <Typography variant="h4" color="primary">
+                            <Typography variant="h4" color="primary" sx={{ fontSize: { xs: '1.5rem', sm: '2rem', md: '2.125rem' } }}>
                                 {formatCurrency(monthlyTotal)}
                             </Typography>
                             <Typography variant="body2" color="text.secondary">
@@ -270,31 +300,42 @@ const Dashboard = ({ refreshTrigger }) => {
                             No expenses recorded for {MONTHS[selectedMonth]} {selectedYear}
                         </Alert>
                     ) : (
-                        <TableContainer component={Paper}>
-                            <Table>
+                        <TableContainer component={Paper} sx={{ borderRadius: 2, maxHeight: { xs: 400, sm: 'none' } }}>
+                            <Table size="small" stickyHeader>
                                 <TableHead>
                                     <TableRow>
-                                        <TableCell>Date</TableCell>
-                                        <TableCell>Category</TableCell>
-                                        <TableCell>Description</TableCell>
-                                        <TableCell align="right">Amount</TableCell>
-                                        <TableCell align="right">In {displayCurrency}</TableCell>
+                                        <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' }, py: { xs: 1, sm: 2 } }}>Date</TableCell>
+                                        <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' }, py: { xs: 1, sm: 2 }, display: { xs: 'none', md: 'table-cell' } }}>Category</TableCell>
+                                        <TableCell sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' }, py: { xs: 1, sm: 2 } }}>Description</TableCell>
+                                        <TableCell align="right" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' }, py: { xs: 1, sm: 2 } }}>Amount</TableCell>
+                                        <TableCell align="right" sx={{ fontSize: { xs: '0.75rem', sm: '0.875rem' }, py: { xs: 1, sm: 2 } }}>{displayCurrency}</TableCell>
                                     </TableRow>
                                 </TableHead>
                                 <TableBody>
                                     {monthlyCosts.map((cost) => {
                                         const convertedAmount = cost.convertedAmount;
                                         return (
-                                            <TableRow key={cost.id}>
-                                                <TableCell>{formatDate(cost.date)}</TableCell>
-                                                <TableCell>
+                                            <TableRow key={cost.id} hover>
+                                                <TableCell sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' }, py: { xs: 0.75, sm: 1.5 } }}>
+                                                    {formatDate(cost.date)}
+                                                </TableCell>
+                                                <TableCell sx={{ display: { xs: 'none', md: 'table-cell' }, py: { xs: 0.75, sm: 1.5 } }}>
                                                     <Chip label={cost.category} size="small" color="primary" variant="outlined" />
                                                 </TableCell>
-                                                <TableCell>{cost.description}</TableCell>
-                                                <TableCell align="right">
+                                                <TableCell sx={{
+                                                    fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                                                    py: { xs: 0.75, sm: 1.5 },
+                                                    maxWidth: { xs: 100, sm: 200 },
+                                                    overflow: 'hidden',
+                                                    textOverflow: 'ellipsis',
+                                                    whiteSpace: 'nowrap'
+                                                }}>
+                                                    {cost.description}
+                                                </TableCell>
+                                                <TableCell align="right" sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' }, py: { xs: 0.75, sm: 1.5 } }}>
                                                     {cost.sum.toFixed(2)} {cost.currency}
                                                 </TableCell>
-                                                <TableCell align="right">
+                                                <TableCell align="right" sx={{ fontSize: { xs: '0.7rem', sm: '0.875rem' }, py: { xs: 0.75, sm: 1.5 }, fontWeight: 600 }}>
                                                     {formatCurrency(convertedAmount)}
                                                 </TableCell>
                                             </TableRow>
@@ -309,8 +350,8 @@ const Dashboard = ({ refreshTrigger }) => {
 
             {/* Tab 1: Category Pie Chart */}
             {activeTab === 1 && (
-                <Paper elevation={2} sx={{ p: 3 }}>
-                    <Typography variant="h6" gutterBottom>
+                <Paper elevation={2} sx={{ p: { xs: 1.5, sm: 2, md: 3 }, borderRadius: 2 }}>
+                    <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                         Expenses by Category - {MONTHS[selectedMonth]} {selectedYear}
                     </Typography>
 
@@ -320,41 +361,56 @@ const Dashboard = ({ refreshTrigger }) => {
                         </Alert>
                     ) : (
                         <>
-                            <ResponsiveContainer width="100%" height={400}>
-                                <PieChart>
-                                    <Pie
-                                        data={categoryData}
-                                        cx="50%"
-                                        cy="50%"
-                                        labelLine={false}
-                                        label={({ name, percent }) => `${name} (${(percent * 100).toFixed(0)}%)`}
-                                        outerRadius={120}
-                                        fill="#8884d8"
-                                        dataKey="value"
-                                    >
-                                        {categoryData.map((entry, index) => (
-                                            <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
-                                        ))}
-                                    </Pie>
-                                    <Tooltip formatter={(value) => formatCurrency(value)} />
-                                </PieChart>
-                            </ResponsiveContainer>
+                            <Box sx={{ width: '100%', height: { xs: 280, sm: 350, md: 400 } }}>
+                                <ResponsiveContainer width="100%" height="100%">
+                                    <PieChart>
+                                        <Pie
+                                            data={categoryData.map(item => ({
+                                                ...item,
+                                                name: item.category || item.name || 'Unknown',
+                                                value: item.amount || item.value || 0
+                                            }))}
+                                            cx="50%"
+                                            cy="50%"
+                                            labelLine={false}
+                                            label={({ name, percent }) => {
+                                                const shortName = name.length > 10 ? name.substring(0, 10) + '...' : name;
+                                                return `${shortName} (${(percent * 100).toFixed(0)}%)`;
+                                            }}
+                                            outerRadius="70%"
+                                            fill="#8884d8"
+                                            dataKey="value"
+                                        >
+                                            {categoryData.map((entry, index) => (
+                                                <Cell key={`cell-${index}`} fill={COLORS[index % COLORS.length]} />
+                                            ))}
+                                        </Pie>
+                                        <Tooltip formatter={(value) => formatCurrency(value)} />
+                                    </PieChart>
+                                </ResponsiveContainer>
+                            </Box>
 
                             {/* Category Legend */}
-                            <Grid container spacing={2} sx={{ mt: 2 }}>
+                            <Grid container spacing={{ xs: 1, sm: 2 }} sx={{ mt: { xs: 1, sm: 2 } }}>
                                 {categoryData.map((item, index) => (
                                     <Grid item xs={6} sm={4} md={3} key={item.category}>
                                         <Box sx={{ display: 'flex', alignItems: 'center' }}>
                                             <Box
                                                 sx={{
-                                                    width: 16,
-                                                    height: 16,
+                                                    width: { xs: 12, sm: 16 },
+                                                    height: { xs: 12, sm: 16 },
                                                     bgcolor: COLORS[index % COLORS.length],
                                                     mr: 1,
-                                                    borderRadius: 1
+                                                    borderRadius: 0.5,
+                                                    flexShrink: 0
                                                 }}
                                             />
-                                            <Typography variant="body2">
+                                            <Typography variant="body2" sx={{
+                                                fontSize: { xs: '0.7rem', sm: '0.875rem' },
+                                                overflow: 'hidden',
+                                                textOverflow: 'ellipsis',
+                                                whiteSpace: 'nowrap'
+                                            }}>
                                                 {item.category}: {formatCurrency(item.amount)}
                                             </Typography>
                                         </Box>
@@ -368,26 +424,38 @@ const Dashboard = ({ refreshTrigger }) => {
 
             {/* Tab 2: Yearly Bar Chart */}
             {activeTab === 2 && (
-                <Paper elevation={2} sx={{ p: 3 }}>
-                    <Typography variant="h6" gutterBottom>
+                <Paper elevation={2} sx={{ p: { xs: 1.5, sm: 2, md: 3 }, borderRadius: 2 }}>
+                    <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                         Monthly Expenses - {selectedYear}
                     </Typography>
 
-                    {monthlyData.every(item => item.amount === 0) ? (
+                    {!monthlyData || monthlyData.length === 0 || monthlyData.every(item => item.amount === 0) ? (
                         <Alert severity="info">
                             No data available for {selectedYear}
                         </Alert>
                     ) : (
-                        <ResponsiveContainer width="100%" height={400}>
-                            <BarChart data={monthlyData}>
-                                <CartesianGrid strokeDasharray="3 3" />
-                                <XAxis dataKey="month" />
-                                <YAxis />
-                                <Tooltip formatter={(value) => formatCurrency(value)} />
-                                <Legend />
-                                <Bar dataKey="amount" fill="#0088FE" name={`Amount (${displayCurrency})`} />
-                            </BarChart>
-                        </ResponsiveContainer>
+                        <Box sx={{ width: '100%', height: { xs: 280, sm: 350, md: 400 } }}>
+                            <ResponsiveContainer width="100%" height="100%">
+                                <BarChart
+                                    data={monthlyData.map(item => ({
+                                        ...item,
+                                        monthName: MONTHS[item.month - 1] ? MONTHS[item.month - 1].substring(0, 3) : `M${item.month}`
+                                    }))}
+                                    margin={{ top: 5, right: 5, left: 0, bottom: 5 }}
+                                >
+                                    <CartesianGrid strokeDasharray="3 3" />
+                                    <XAxis
+                                        dataKey="monthName"
+                                        tick={{ fontSize: 10 }}
+                                        interval={0}
+                                    />
+                                    <YAxis tick={{ fontSize: 10 }} width={50} />
+                                    <Tooltip formatter={(value) => formatCurrency(value)} />
+                                    <Legend wrapperStyle={{ fontSize: '12px' }} />
+                                    <Bar dataKey="amount" fill="#0088FE" name={`Amount (${displayCurrency})`} />
+                                </BarChart>
+                            </ResponsiveContainer>
+                        </Box>
                     )}
                 </Paper>
             )}

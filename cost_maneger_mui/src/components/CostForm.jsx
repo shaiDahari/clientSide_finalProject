@@ -18,8 +18,8 @@ import {
 import { AddCircleOutline } from '@mui/icons-material';
 import { openCostsDB } from '../utils/idb';
 
-// Available currencies
-const CURRENCIES = ['USD', 'EUR', 'GBP', 'ILS'];
+// Available currencies (EURO handles both EUR and EURO via normalizeRates)
+const CURRENCIES = ['USD', 'EURO', 'GBP', 'ILS'];
 
 // Common expense categories
 const CATEGORIES = [
@@ -77,9 +77,12 @@ const CostForm = ({ onCostAdded }) => {
     const validateForm = () => {
         const errors = {};
 
-        // Validate sum (must be positive number)
-        if (!formData.sum || isNaN(formData.sum) || parseFloat(formData.sum) <= 0) {
+        // Validate sum (must be positive number and within reasonable range)
+        const sumValue = parseFloat(formData.sum);
+        if (!formData.sum || isNaN(sumValue) || sumValue <= 0) {
             errors.sum = 'Please enter a valid positive amount';
+        } else if (sumValue > 999999999) {
+            errors.sum = 'Amount is too large (maximum: 999,999,999)';
         }
 
         // Validate category
@@ -87,9 +90,12 @@ const CostForm = ({ onCostAdded }) => {
             errors.category = 'Please select a category';
         }
 
-        // Validate description
-        if (!formData.description.trim()) {
+        // Validate description (required and length limit)
+        const trimmedDescription = formData.description.trim();
+        if (!trimmedDescription) {
             errors.description = 'Please enter a description';
+        } else if (trimmedDescription.length > 500) {
+            errors.description = 'Description is too long (maximum: 500 characters)';
         }
 
         setValidationErrors(errors);
@@ -155,10 +161,19 @@ const CostForm = ({ onCostAdded }) => {
     };
 
     return (
-        <Paper elevation={3} sx={{ p: 4, maxWidth: 600, mx: 'auto', mt: 3 }}>
-            <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                <AddCircleOutline sx={{ fontSize: 32, mr: 1, color: 'primary.main' }} />
-                <Typography variant="h5" component="h2">
+        <Paper
+            elevation={3}
+            sx={{
+                p: { xs: 2, sm: 3, md: 4 },
+                maxWidth: 600,
+                mx: 'auto',
+                mt: { xs: 1, sm: 2, md: 3 },
+                borderRadius: { xs: 2, sm: 3 }
+            }}
+        >
+            <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 2, sm: 3 } }}>
+                <AddCircleOutline sx={{ fontSize: { xs: 28, sm: 32 }, mr: 1, color: 'primary.main' }} />
+                <Typography variant="h5" component="h2" sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
                     Add New Expense
                 </Typography>
             </Box>
@@ -178,9 +193,9 @@ const CostForm = ({ onCostAdded }) => {
             )}
 
             <form onSubmit={handleSubmit}>
-                <Grid container spacing={3}>
-                    {/* Amount and Currency Row */}
-                    <Grid item xs={12} sm={8}>
+                <Grid container spacing={{ xs: 2, sm: 3 }}>
+                    {/* Amount Field */}
+                    <Grid item xs={12} sm={6}>
                         <TextField
                             fullWidth
                             label="Amount"
@@ -190,16 +205,23 @@ const CostForm = ({ onCostAdded }) => {
                             onChange={handleChange}
                             inputProps={{
                                 step: '0.01',
-                                min: '0'
+                                min: '0',
+                                style: { fontSize: '1.1rem' }
+                            }}
+                            InputLabelProps={{
+                                shrink: true,
+                                sx: { fontSize: '1rem', fontWeight: 500 }
                             }}
                             error={!!validationErrors.sum}
-                            helperText={validationErrors.sum}
+                            helperText={validationErrors.sum || 'Enter the expense amount'}
                             disabled={loading}
                             required
+                            placeholder="0.00"
                         />
                     </Grid>
 
-                    <Grid item xs={12} sm={4}>
+                    {/* Currency Field */}
+                    <Grid item xs={12} sm={6}>
                         <TextField
                             fullWidth
                             select
@@ -209,16 +231,31 @@ const CostForm = ({ onCostAdded }) => {
                             onChange={handleChange}
                             disabled={loading}
                             required
+                            InputLabelProps={{
+                                shrink: true,
+                                sx: { fontSize: '1rem', fontWeight: 500 }
+                            }}
+                            SelectProps={{
+                                sx: { fontSize: '1.1rem' }
+                            }}
+                            helperText="Select currency type"
                         >
                             {CURRENCIES.map((currency) => (
-                                <MenuItem key={currency} value={currency}>
-                                    {currency}
+                                <MenuItem
+                                    key={currency}
+                                    value={currency}
+                                    sx={{ fontSize: '1rem', py: 1.5 }}
+                                >
+                                    {currency === 'USD' && '$ USD - US Dollar'}
+                                    {currency === 'EURO' && '€ EURO - Euro'}
+                                    {currency === 'GBP' && '£ GBP - British Pound'}
+                                    {currency === 'ILS' && '₪ ILS - Israeli Shekel'}
                                 </MenuItem>
                             ))}
                         </TextField>
                     </Grid>
 
-                    {/* Category */}
+                    {/* Category Field */}
                     <Grid item xs={12}>
                         <TextField
                             fullWidth
@@ -228,19 +265,34 @@ const CostForm = ({ onCostAdded }) => {
                             value={formData.category}
                             onChange={handleChange}
                             error={!!validationErrors.category}
-                            helperText={validationErrors.category}
+                            helperText={validationErrors.category || 'Select expense category'}
                             disabled={loading}
                             required
+                            InputLabelProps={{
+                                shrink: true,
+                                sx: { fontSize: '1rem', fontWeight: 500 }
+                            }}
+                            SelectProps={{
+                                sx: { fontSize: '1rem' }
+                            }}
                         >
                             {CATEGORIES.map((category) => (
-                                <MenuItem key={category} value={category}>
+                                <MenuItem
+                                    key={category}
+                                    value={category}
+                                    sx={{
+                                        py: 1.5,
+                                        fontSize: '1rem',
+                                        '&:hover': { bgcolor: 'action.hover' }
+                                    }}
+                                >
                                     {category}
                                 </MenuItem>
                             ))}
                         </TextField>
                     </Grid>
 
-                    {/* Description */}
+                    {/* Description Field */}
                     <Grid item xs={12}>
                         <TextField
                             fullWidth
@@ -254,6 +306,14 @@ const CostForm = ({ onCostAdded }) => {
                             helperText={validationErrors.description || 'Provide details about this expense'}
                             disabled={loading}
                             required
+                            InputLabelProps={{
+                                shrink: true,
+                                sx: { fontSize: '1rem', fontWeight: 500 }
+                            }}
+                            inputProps={{
+                                style: { fontSize: '1rem' }
+                            }}
+                            placeholder="What was this expense for?"
                         />
                     </Grid>
 
@@ -266,6 +326,12 @@ const CostForm = ({ onCostAdded }) => {
                             size="large"
                             disabled={loading}
                             startIcon={loading ? <CircularProgress size={20} /> : <AddCircleOutline />}
+                            sx={{
+                                py: { xs: 1.5, sm: 1.75 },
+                                fontSize: { xs: '0.95rem', sm: '1rem' },
+                                fontWeight: 600,
+                                borderRadius: 2
+                            }}
                         >
                             {loading ? 'Adding...' : 'Add Expense'}
                         </Button>

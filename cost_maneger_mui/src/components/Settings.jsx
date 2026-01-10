@@ -115,6 +115,21 @@ const Settings = () => {
                 throw new Error('Invalid response format');
             }
 
+            // Validate that required currencies exist (accept both EUR and EURO)
+            const hasEuro = data['EUR'] !== undefined || data['EURO'] !== undefined;
+            const requiredCurrencies = ['USD', 'GBP', 'ILS'];
+            const missingCurrencies = requiredCurrencies.filter(curr =>
+                data[curr] === undefined && data[curr.toUpperCase()] === undefined
+            );
+
+            if (!hasEuro) {
+                missingCurrencies.push('EUR/EURO');
+            }
+
+            if (missingCurrencies.length > 0) {
+                console.warn(`Missing currencies in API response: ${missingCurrencies.join(', ')}`);
+            }
+
             setSuccess(true);
             setError(null);
 
@@ -171,11 +186,11 @@ const Settings = () => {
     }
 
     return (
-        <Box sx={{ p: 3, maxWidth: 800, mx: 'auto' }}>
-            <Paper elevation={3} sx={{ p: 4 }}>
-                <Box sx={{ display: 'flex', alignItems: 'center', mb: 3 }}>
-                    <SettingsIcon sx={{ fontSize: 32, mr: 1, color: 'primary.main' }} />
-                    <Typography variant="h5" component="h2">
+        <Box sx={{ p: { xs: 1, sm: 2, md: 3 }, maxWidth: 800, mx: 'auto' }}>
+            <Paper elevation={3} sx={{ p: { xs: 2, sm: 3, md: 4 }, borderRadius: 2 }}>
+                <Box sx={{ display: 'flex', alignItems: 'center', mb: { xs: 2, sm: 3 } }}>
+                    <SettingsIcon sx={{ fontSize: { xs: 28, sm: 32 }, mr: 1, color: 'primary.main' }} />
+                    <Typography variant="h5" component="h2" sx={{ fontSize: { xs: '1.25rem', sm: '1.5rem' } }}>
                         Application Settings
                     </Typography>
                 </Box>
@@ -195,11 +210,11 @@ const Settings = () => {
                 )}
 
                 {/* Exchange Rate URL Section */}
-                <Box sx={{ mb: 4 }}>
-                    <Typography variant="h6" gutterBottom>
+                <Box sx={{ mb: { xs: 3, sm: 4 } }}>
+                    <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                         Exchange Rate API
                     </Typography>
-                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
+                    <Typography variant="body2" color="text.secondary" sx={{ mb: 2, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
                         Configure a custom URL for fetching real-time exchange rates. If not set or if the URL fails,
                         the application will use default exchange rates.
                     </Typography>
@@ -213,14 +228,28 @@ const Settings = () => {
                         disabled={loading || testingConnection}
                         sx={{ mb: 2 }}
                         helperText="Example: https://api.exchangerate-api.com/v4/latest/USD"
+                        size="medium"
+                        InputLabelProps={{
+                            sx: { fontSize: { xs: '0.9rem', sm: '1rem' } }
+                        }}
                     />
 
-                    <Box sx={{ display: 'flex', gap: 2, flexWrap: 'wrap' }}>
+                    <Box sx={{
+                        display: 'flex',
+                        gap: { xs: 1, sm: 2 },
+                        flexWrap: 'wrap',
+                        flexDirection: { xs: 'column', sm: 'row' }
+                    }}>
                         <Button
                             variant="contained"
                             startIcon={loading ? <CircularProgress size={20} /> : <Save />}
                             onClick={handleSave}
                             disabled={loading || testingConnection}
+                            fullWidth={false}
+                            sx={{
+                                minWidth: { xs: '100%', sm: 'auto' },
+                                py: { xs: 1.25, sm: 1 }
+                            }}
                         >
                             {loading ? 'Saving...' : 'Save Settings'}
                         </Button>
@@ -230,6 +259,10 @@ const Settings = () => {
                             startIcon={testingConnection ? <CircularProgress size={20} /> : <Refresh />}
                             onClick={handleTestConnection}
                             disabled={loading || testingConnection || !exchangeRateUrl}
+                            sx={{
+                                minWidth: { xs: '100%', sm: 'auto' },
+                                py: { xs: 1.25, sm: 1 }
+                            }}
                         >
                             {testingConnection ? 'Testing...' : 'Test Connection'}
                         </Button>
@@ -238,13 +271,17 @@ const Settings = () => {
                             variant="text"
                             onClick={handleReset}
                             disabled={loading || testingConnection}
+                            sx={{
+                                minWidth: { xs: '100%', sm: 'auto' },
+                                py: { xs: 1.25, sm: 1 }
+                            }}
                         >
                             Reset to Default
                         </Button>
                     </Box>
                 </Box>
 
-                <Divider sx={{ my: 3 }} />
+                <Divider sx={{ my: { xs: 2, sm: 3 } }} />
 
                 {/* Default Exchange Rates Info */}
                 <Box sx={{ mb: 3 }}>
