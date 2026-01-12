@@ -1,6 +1,9 @@
 /**
- * CostForm Component
- * Form for adding new cost entries with validation
+ * CostForm Component - Expense entry form with validation
+ * Provides input fields for amount, currency, category, and description
+ * Handles form validation, database persistence, and user feedback
+ * @param {Object} props.onCostAdded - Callback function triggered after successful cost addition
+ * @returns {JSX.Element} Form component for adding new expenses
  */
 
 import { useState } from 'react';
@@ -18,10 +21,10 @@ import {
 import { AddCircleOutline } from '@mui/icons-material';
 import { openCostsDB } from '../utils/idb';
 
-// Available currencies (EURO handles both EUR and EURO via normalizeRates)
+// Supported currencies for expense entry (EURO maps to EUR via normalizeRates)
 const CURRENCIES = ['USD', 'EURO', 'GBP', 'ILS'];
 
-// Common expense categories
+// Predefined expense categories for user selection
 const CATEGORIES = [
     'Food & Dining',
     'Transportation',
@@ -35,8 +38,13 @@ const CATEGORIES = [
     'Other'
 ];
 
+/**
+ * Main CostForm component for expense entry
+ * @param {Object} props - Component props
+ * @param {Function} props.onCostAdded - Callback executed after successful cost addition
+ */
 const CostForm = ({ onCostAdded }) => {
-    // Form state management
+    // Form data state - manages user input values
     const [formData, setFormData] = useState({
         sum: '',
         currency: 'USD',
@@ -44,18 +52,22 @@ const CostForm = ({ onCostAdded }) => {
         description: ''
     });
 
-    // UI state management
+    // UI state - controls loading indicators and user feedback
     const [loading, setLoading] = useState(false);
     const [error, setError] = useState(null);
     const [success, setSuccess] = useState(false);
     const [validationErrors, setValidationErrors] = useState({});
 
     /**
-     * Handle input field changes
-     * Updates form data state as user types
+     * Handle input field changes and clear validation errors
+     * Updates form data state as user types in any field
+     * @param {Event} event - Input change event
      */
     const handleChange = (event) => {
+        // Extract field name and value from input event
         const { name, value } = event.target;
+        
+        // Update form state with new field value
         setFormData(prev => ({
             ...prev,
             [name]: value
@@ -71,13 +83,14 @@ const CostForm = ({ onCostAdded }) => {
     };
 
     /**
-     * Validate form data before submission
-     * @returns {boolean} True if form is valid, false otherwise
+     * Validate all form fields before submission
+     * Checks amount, category, and description for valid input
+     * @returns {boolean} True if all validations pass, false otherwise
      */
     const validateForm = () => {
         const errors = {};
 
-        // Validate sum (must be positive number and within reasonable range)
+        // Validate amount field - must be positive number within limits
         const sumValue = parseFloat(formData.sum);
         if (!formData.sum || isNaN(sumValue) || sumValue <= 0) {
             errors.sum = 'Please enter a valid positive amount';
@@ -85,12 +98,12 @@ const CostForm = ({ onCostAdded }) => {
             errors.sum = 'Amount is too large (maximum: 999,999,999)';
         }
 
-        // Validate category
+        // Validate category selection - required field
         if (!formData.category) {
             errors.category = 'Please select a category';
         }
 
-        // Validate description (required and length limit)
+        // Validate description - required field with length limit
         const trimmedDescription = formData.description.trim();
         if (!trimmedDescription) {
             errors.description = 'Please enter a description';
@@ -98,28 +111,34 @@ const CostForm = ({ onCostAdded }) => {
             errors.description = 'Description is too long (maximum: 500 characters)';
         }
 
+        // Store validation errors and return whether form is valid
         setValidationErrors(errors);
         return Object.keys(errors).length === 0;
     };
 
     /**
-     * Handle form submission
-     * Validates data and saves to IndexedDB
+     * Handle form submission with validation and database persistence
+     * Validates input, saves to IndexedDB, and provides user feedback
+     * @param {Event} event - Form submit event
      */
     const handleSubmit = async (event) => {
+        // Prevent default form submission behavior
         event.preventDefault();
+        
+        // Reset UI feedback states
         setError(null);
         setSuccess(false);
 
-        // Validate form
+        // Validate all form fields before proceeding
         if (!validateForm()) {
-            return;
+            return; // Stop submission if validation fails
         }
 
+        // Show loading indicator during save operation
         setLoading(true);
 
         try {
-            // Prepare cost object
+            // Prepare cost object with validated and formatted data
             const cost = {
                 sum: parseFloat(formData.sum),
                 currency: formData.currency,
@@ -128,14 +147,14 @@ const CostForm = ({ onCostAdded }) => {
                 date: new Date().toISOString()
             };
 
-            // Save to IndexedDB
+            // Connect to database and save the new cost entry
             const db = await openCostsDB("costsdb", 1);
             await db.addCost(cost);
 
-            // Show success message
+            // Display success feedback to user
             setSuccess(true);
 
-            // Reset form
+            // Reset form to initial state for next entry
             setFormData({
                 sum: '',
                 currency: 'USD',
@@ -247,7 +266,7 @@ const CostForm = ({ onCostAdded }) => {
                                     sx={{ fontSize: '1rem', py: 1.5 }}
                                 >
                                     {currency === 'USD' && '$ USD - US Dollar'}
-                                    {currency === 'EURO' && '€ EURO - Euro'}
+                                    {currency === 'EURO' && '€ EUR - Euro'}
                                     {currency === 'GBP' && '£ GBP - British Pound'}
                                     {currency === 'ILS' && '₪ ILS - Israeli Shekel'}
                                 </MenuItem>

@@ -1,6 +1,8 @@
 /**
- * Settings Component
- * Allows users to configure custom exchange rate URL and view app information
+ * Settings Component - Application configuration interface
+ * Manages custom exchange rate API URLs and displays application information
+ * Provides URL validation, connection testing, and fallback handling
+ * @returns {JSX.Element} Settings page with URL configuration and app info
  */
 
 import { useState, useEffect } from 'react';
@@ -18,12 +20,17 @@ import {
     Grid
 } from '@mui/material';
 import { Settings as SettingsIcon, Save, Refresh } from '@mui/icons-material';
-//import { saveSetting, getSetting, DEFAULT_EXCHANGE_RATES } from '../utils/db';
 import { openCostsDB } from '../utils/idb';
+import {DEFAULT_EXCHANGE_URL} from "../utils/helperFunctions.js";
 
+/**
+ * Main Settings component for application configuration
+ */
 const Settings = () => {
-    // State management
+    // Form state - manages user input for exchange rate URL
     const [exchangeRateUrl, setExchangeRateUrl] = useState('');
+    
+    // UI state - controls loading indicators and user feedback
     const [loading, setLoading] = useState(false);
     const [initialLoading, setInitialLoading] = useState(true);
     const [error, setError] = useState(null);
@@ -31,148 +38,183 @@ const Settings = () => {
     const [testingConnection, setTestingConnection] = useState(false);
 
     /**
-     * Load saved settings on component mount
+     * Effect hook to load saved settings when component mounts
      */
     useEffect(() => {
         loadSettings();
     }, []);
 
     /**
-     * Load settings from IndexedDB
+     * Load saved exchange rate URL from IndexedDB on component initialization
      */
     const loadSettings = async () => {
+        // Show initial loading indicator
         setInitialLoading(true);
+        
         try {
+            // Connect to database and retrieve saved URL setting
             const db = await openCostsDB("costsdb", 1);
             const savedUrl = await db.getSetting('exchangeRateUrl');
+            
+            // Populate form field if URL was previously saved
             if (savedUrl) {
                 setExchangeRateUrl(savedUrl);
             }
         } catch (err) {
+            // Display error if settings cannot be loaded
             setError(`Failed to load settings: ${err.message}`);
         } finally {
+            // Hide loading indicator regardless of outcome
             setInitialLoading(false);
         }
     };
 
     /**
-     * Handle saving exchange rate URL
+     * Handle saving exchange rate URL to database
+     * Validates URL format and provides user feedback
      */
     const handleSave = async () => {
+        // Initialize saving state and clear previous messages
         setLoading(true);
         setError(null);
         setSuccess(false);
 
         try {
-            // Validate URL format if provided
+            // Validate URL format before saving (if URL provided)
             if (exchangeRateUrl && !isValidUrl(exchangeRateUrl)) {
                 throw new Error('Please enter a valid URL');
             }
 
-            // Save to IndexedDB
+            // Connect to database and persist the URL setting
             const db = await openCostsDB("costsdb", 1);
             await db.setSetting('exchangeRateUrl', exchangeRateUrl);
-            console.log('Saved custom URL:', exchangeRateUrl); // Add this
+            console.log('Saved custom URL:', exchangeRateUrl);
 
+            // Show success feedback to user
             setSuccess(true);
 
-            // Clear success message after 3 seconds
+            // Auto-hide success message after 3 seconds
             setTimeout(() => {
                 setSuccess(false);
             }, 3000);
 
         } catch (err) {
+            // Display error message if save operation fails
             setError(`Failed to save settings: ${err.message}`);
         } finally {
+            // Clear loading state regardless of success/failure
             setLoading(false);
         }
     };
 
     /**
-     * Test the exchange rate URL connection
+     * Test connection to the exchange rate API URL
+     * Validates URL accessibility and response format
      */
     const handleTestConnection = async () => {
+        // Validate that URL is provided before testing
         if (!exchangeRateUrl) {
             setError('Please enter a URL to test');
             return;
         }
 
+        // Initialize testing state and clear previous messages
         setTestingConnection(true);
         setError(null);
 
         try {
-            // Attempt to fetch from the URL
+            // Attempt to fetch data from the provided URL
             const response = await fetch(exchangeRateUrl);
 
+            // Check if HTTP request was successful
             if (!response.ok) {
                 throw new Error(`HTTP error! status: ${response.status}`);
             }
 
+            // Parse JSON response from the API
             const data = await response.json();
 
-            // Basic validation of response structure
+            // Validate that response contains expected data structure
             if (!data || typeof data !== 'object') {
                 throw new Error('Invalid response format');
             }
 
-            // Validate that required currencies exist (accept both EUR and EURO)
+            // Check for required currencies (accept both EUR and EURO formats)
             const hasEuro = data['EUR'] !== undefined || data['EURO'] !== undefined;
             const requiredCurrencies = ['USD', 'GBP', 'ILS'];
             const missingCurrencies = requiredCurrencies.filter(curr =>
                 data[curr] === undefined && data[curr.toUpperCase()] === undefined
             );
 
+            // Add EUR/EURO to missing currencies if neither is found
             if (!hasEuro) {
                 missingCurrencies.push('EUR/EURO');
             }
 
+            // Log warning for missing currencies but don't fail test
             if (missingCurrencies.length > 0) {
                 console.warn(`Missing currencies in API response: ${missingCurrencies.join(', ')}`);
             }
 
+            // Show success message for successful connection
             setSuccess(true);
             setError(null);
 
+            // Auto-hide success message after 3 seconds
             setTimeout(() => {
                 setSuccess(false);
             }, 3000);
 
         } catch (err) {
+            // Display detailed error message for failed connection
             setError(`Connection test failed: ${err.message}. Using default exchange rates.`);
         } finally {
+            // Clear testing state regardless of outcome
             setTestingConnection(false);
         }
     };
 
     /**
-     * Reset to default settings
+     * Reset exchange rate URL to default (empty) setting
+     * Clears custom URL and reverts to application default
      */
     const handleReset = async () => {
+        // Clear form field and UI messages
+        //setExchangeRateUrl(DEFAULT_EXCHANGE_URL);
         setExchangeRateUrl('');
         setError(null);
         setSuccess(false);
 
         try {
+            // Connect to database and clear the custom URL setting
             const db = await openCostsDB("costsdb", 1);
             await db.setSetting('exchangeRateUrl', '');
+            
+            // Show confirmation that reset was successful
             setSuccess(true);
 
+            // Auto-hide success message after 3 seconds
             setTimeout(() => {
                 setSuccess(false);
             }, 3000);
         } catch (err) {
+            // Display error if reset operation fails
             setError(`Failed to reset settings: ${err.message}`);
         }
     };
 
     /**
-     * Validate URL format
+     * Validate URL format using browser's URL constructor
+     * @param {string} string - URL string to validate
+     * @returns {boolean} True if URL is valid, false otherwise
      */
     const isValidUrl = (string) => {
         try {
+            // Use URL constructor for comprehensive validation
             new URL(string);
             return true;
         } catch (_) {
+            // Return false for any invalid URL format
             return false;
         }
     };

@@ -1,6 +1,8 @@
 /**
- * Cost Manager Application
- * Main application component with navigation and layout
+ * Cost Manager Application - Main application entry point
+ * Provides navigation, responsive layout, and database initialization
+ * Manages tab-based routing between CostForm, Dashboard, and Settings
+ * @returns {JSX.Element} Complete application with mobile-responsive navigation
  */
 
 import { useState, useEffect } from 'react';
@@ -36,28 +38,33 @@ import {
     Close as CloseIcon
 } from '@mui/icons-material';
 
-// Import components
+// Application components and database utilities
 import CostForm from './components/CostForm';
 import Dashboard from './components/Dashboard';
 import Settings from './components/Settings';
 import { openCostsDB } from './utils/idb';
 
+/**
+ * Main Application component with responsive navigation and database management
+ */
 const App = () => {
-    // State management for navigation
+    // Navigation state - manages active tab and mobile drawer
     const [activeTab, setActiveTab] = useState(0);
     const [mobileDrawerOpen, setMobileDrawerOpen] = useState(false);
+    
+    // Data state - triggers component refresh and tracks database status
     const [refreshTrigger, setRefreshTrigger] = useState(0);
     const [dbInitialized, setDbInitialized] = useState(false);
     const [dbError, setDbError] = useState(null);
 
-    // Responsive design
+    // Responsive design hooks - detect screen size for layout adaptation
     const theme = useTheme();
     const isMobile = useMediaQuery(theme.breakpoints.down('sm'));
     const isTablet = useMediaQuery(theme.breakpoints.down('md'));
 
     /**
-     * Initialize IndexedDB on component mount
-     * Checks browser support and initializes database
+     * Initialize IndexedDB database on application startup
+     * Verifies browser support and sets up database connection
      */
     useEffect(() => {
         const initializeDatabase = async () => {
@@ -103,21 +110,22 @@ const App = () => {
     };
 
     /**
-     * Handle cost added callback
-     * Triggers refresh of dashboard data
+     * Handle successful cost addition by triggering data refresh
+     * Increments refresh trigger to update Dashboard with new data
      */
     const handleCostAdded = () => {
+        // Increment trigger to force Dashboard re-render and data reload
         setRefreshTrigger(prev => prev + 1);
     };
 
     /**
-     * Toggle mobile drawer
+     * Toggle mobile navigation drawer open/closed state
      */
     const toggleDrawer = () => {
         setMobileDrawerOpen(!mobileDrawerOpen);
     };
 
-    // Navigation items configuration
+    // Navigation configuration - defines tabs with labels and icons
     const navigationItems = [
         { label: 'Add Cost', icon: <AttachMoney />, index: 0 },
         { label: 'Reports & Charts', icon: <BarChart />, index: 1 },

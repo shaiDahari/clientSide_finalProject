@@ -1,6 +1,9 @@
 /**
- * Dashboard Component
- * Displays monthly reports, pie charts by category, and bar charts by month
+ * Dashboard Component - Main data visualization and reporting interface
+ * Displays monthly expense reports, category pie charts, and yearly bar charts
+ * Handles currency conversion and responsive design for mobile/desktop
+ * @param {Object} props.refreshTrigger - Triggers data reload when changed
+ * @returns {JSX.Element} Dashboard component with tabbed interface
  */
 
 import { useState, useEffect } from 'react';
@@ -38,136 +41,168 @@ import {
     Legend,
     ResponsiveContainer
 } from 'recharts';
-import { openCostsDB, convertCurrency, fetchAndConvert } from '../utils/idb';
+import { openCostsDB } from '../utils/idb';
+import { fetchAndConvertWithUrl } from '../utils/helperFunctions';
 
-// Color palette for charts
+// Color palette for chart visualization - 10 distinct colors
 const COLORS = [
     '#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8',
     '#82CA9D', '#FFC658', '#FF6B9D', '#C780E8', '#4ECDC4'
 ];
 
-// Months for display
+// Month names for user-friendly date display
 const MONTHS = [
     'January', 'February', 'March', 'April', 'May', 'June',
     'July', 'August', 'September', 'October', 'November', 'December'
 ];
 
+/**
+ * Main Dashboard component with expense tracking and visualization
+ * @param {Object} props - Component props
+ * @param {any} props.refreshTrigger - Dependency for triggering data refresh
+ */
 const Dashboard = ({ refreshTrigger }) => {
-    // State for selected filters
+    // Filter state - user-selected time period and currency
     const [selectedMonth, setSelectedMonth] = useState(new Date().getMonth());
     const [selectedYear, setSelectedYear] = useState(new Date().getFullYear());
     const [displayCurrency, setDisplayCurrency] = useState('USD');
     const [activeTab, setActiveTab] = useState(0);
 
-    // Data state
+    // Data state - holds processed expense information
     const [monthlyCosts, setMonthlyCosts] = useState([]);
     const [allCosts, setAllCosts] = useState([]);
     const [categoryData, setCategoryData] = useState([]);
     const [monthlyData, setMonthlyData] = useState([]);
 
-    // UI state
+    // UI state - manages loading and error display
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState(null);
     const [monthlyTotal, setMonthlyTotal] = useState(0);
 
     /**
-     * Load costs from IndexedDB
-     * Fetches data on component mount and when refreshTrigger changes
+     * Effect hook to reload data when filters or refresh trigger changes
+     * Monitors: selectedMonth, selectedYear, displayCurrency, refreshTrigger
      */
     useEffect(() => {
         loadData();
     }, [selectedMonth, selectedYear, displayCurrency, refreshTrigger]);
 
+    /**
+     * Effect hook to recalculate monthly total when costs or currency changes
+     * Updates total whenever monthlyCosts or displayCurrency changes
+     */
     useEffect(() => {
         const updateTotal = async () => {
+            // Calculate total only if we have cost data
             if (monthlyCosts.length > 0) {
                 const total = await calculateTotal();
                 setMonthlyTotal(total);
             } else {
-                setMonthlyTotal(0);
+                setMonthlyTotal(0); // Reset to zero for empty months
             }
         };
         updateTotal();
     }, [monthlyCosts, displayCurrency]);
 
     /**
-     * Fetch and process cost data
+     * Fetch and process cost data from IndexedDB
+     * Loads monthly costs, chart data with currency conversion
      */
     const loadData = async () => {
+        // Initialize loading state and clear previous errors
         setLoading(true);
         setError(null);
+
+
+        // Open database connection
         const db = await openCostsDB("costsdb", 1);
+        //await db.setSetting('exchangeRateUrl', DEFAULT_EXCHANGE_URL);
+
 
         try {
-            //Fetch all costs and monthly costs in parallel
+            // Fetch all costs and monthly costs concurrently for performance
             const [allCostsData, monthCostsData] = await Promise.all([
                 db.getAllCosts(),
                 db.getCostsByMonth(selectedMonth, selectedYear)
             ]);
 
+            // Store all costs for potential future use
             setAllCosts(allCostsData);
-            const costsWithConverted = await fetchAndConvert(
-                monthCostsData,
-                displayCurrency,
-                db.getExchangeRatesUrl
-            );
+
+            // Convert monthly costs to display currency with current exchange rates
+            const costsWithConverted = await fetchAndConvertWithUrl(db, monthCostsData, displayCurrency);
             setMonthlyCosts(costsWithConverted);
 
-            //Process category data for pie chart using database function
+            // Generate category breakdown data for pie chart visualization
             const categoryData = await db.getPieChartData(selectedYear, selectedMonth + 1, displayCurrency);
             setCategoryData(categoryData);
 
-            //Process monthly data for bar chart using database function
+            // Generate yearly overview data for bar chart visualization
             const monthlyData = await db.getBarChartData(selectedYear, displayCurrency);
             setMonthlyData(monthlyData);
 
         } catch (err) {
+            // Handle and display any data loading errors
             setError(`Failed to load data: ${err.message}`);
         } finally {
+            // Ensure loading state is cleared regardless of success/failure
             setLoading(false);
         }
     };
 
     /**
-     * Calculate total for monthly costs
+     * Calculate total amount for monthly costs in display currency
+     * @returns {Promise<number>} Total amount in selected display currency
      */
     const calculateTotal = async () => {
         try {
+            // Open database connection for exchange rate access
             const db = await openCostsDB("costsdb", 1);
-            const costsWithConverted = await fetchAndConvert(
-                monthlyCosts,
-                displayCurrency,
-                db.getExchangeRatesUrl
-            );
+
+            // Convert all monthly costs to display currency
+            const costsWithConverted = await fetchAndConvertWithUrl(db, monthlyCosts, displayCurrency);
+            
+            // Sum all converted amounts for monthly total
             return costsWithConverted.reduce((total, cost) => total + cost.convertedAmount, 0);
         } catch (error) {
+            // Log error and return zero as safe fallback
             console.error('Error calculating total:', error);
             return 0;
         }
     };
 
     /**
-     * Format currency for display
-     * Handles edge cases like undefined or NaN values
+     * Format currency amount for display with proper symbols and locale
+     * Handles invalid amounts and unsupported currency codes gracefully
+     * @param {number} amount - Amount to format
+     * @returns {string} Formatted currency string
      */
     const formatCurrency = (amount) => {
-        // Handle undefined, null, or NaN values
+        // Sanitize input amount to prevent display errors
         if (amount === undefined || amount === null || isNaN(amount)) {
+            amount = 0;
+        }
+
+        try {
+            // Use browser's Intl API for proper currency formatting
             return new Intl.NumberFormat('en-US', {
                 style: 'currency',
                 currency: displayCurrency
-            }).format(0);
+            }).format(amount);
+        } catch (error) {
+            // Fallback formatting for unsupported currency codes (e.g., EURO)
+            const symbol = displayCurrency === 'EURO' ? '€' : displayCurrency;
+            return `${symbol}${amount.toFixed(2)}`;
         }
-        return new Intl.NumberFormat('en-US', {
-            style: 'currency',
-            currency: displayCurrency
-        }).format(amount);
     };
 
     /**
-     * Format date for display
+     * Format date string for user-friendly display
+     * @param {string} dateString - ISO date string or date-compatible string
+     * @returns {string} Formatted date in 'MMM DD, YYYY' format
      */
     const formatDate = (dateString) => {
+        // Convert to Date object and format for display
         return new Date(dateString).toLocaleDateString('en-US', {
             year: 'numeric',
             month: 'short',
@@ -175,7 +210,7 @@ const Dashboard = ({ refreshTrigger }) => {
         });
     };
 
-    // Generate year options (current year and 5 years back)
+    // Generate year options for dropdown (current year and 5 previous years)
     const yearOptions = Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - i);
 
     if (loading) {

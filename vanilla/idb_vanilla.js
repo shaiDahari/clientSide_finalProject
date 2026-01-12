@@ -1,8 +1,5 @@
 const DEFAULT_EXCHANGE_URL = 'https://shaidahari.github.io/exchaneRates_json/exchange-rates.json';
 
-// Valid currency codes supported by the application
-const VALID_CURRENCIES = ['USD', 'EUR', 'GBP', 'ILS', 'EURO'];
-
 /**
  * Normalize rates object to handle EUR/EURO equivalence
  * The GitHub JSON uses "EURO" while the app uses "EUR"
@@ -49,27 +46,40 @@ const convertCurrency = function (amount, fromCurrency, toCurrency, rates) {
     return usdAmount * toRate;
 };
 
-const fetchAndConvert = async function (costs, currency, getExchangeRatesUrl) {
-    // Handle empty costs array
+/**
+ * Fetch exchange rates from database settings and convert cost amounts to target currency
+ * Handles the complete flow: get custom URL from settings -> fetch rates -> convert costs
+ * @param {Object} db - Database wrapper instance with getExchangeRatesUrl method
+ * @param {Array} costs - Array of cost objects to convert
+ * @param {string} currency - Target currency code (USD, EUR, GBP, ILS, EURO)
+ * @returns {Array} Costs array with added convertedAmount property for each cost
+ */
+const fetchAndConvertWithUrl = async function (db, costs, currency) {
+    // Early return for empty or invalid cost arrays
     if (!costs || costs.length === 0) {
         return [];
     }
 
-    // Always fetch exchange rates from server
-    const exchangeUrl = await getExchangeRatesUrl();
+    // Retrieve exchange rate API URL from database settings
+    const exchangeUrl = await db.getExchangeRatesUrl();
+
+    // Fetch current exchange rates from configured API endpoint
     const response = await fetch(exchangeUrl);
 
+    // Handle HTTP errors from exchange rate API
     if (!response.ok) {
         throw new Error(`Failed to fetch exchange rates: HTTP ${response.status}`);
     }
 
+    // Parse JSON response from exchange rate API
     const rates = await response.json();
 
-    // Validate that we got a valid rates object
+    // Validate response format before processing
     if (!rates || typeof rates !== 'object') {
         throw new Error('Invalid exchange rates format received from server');
     }
 
+    // Apply currency conversion to each cost and add convertedAmount
     return costs.map(cost => ({
         ...cost,
         convertedAmount: convertCurrency(cost.sum, cost.currency, currency, rates)
@@ -163,11 +173,7 @@ window.idb = {
                                             date: { day: new Date(cost.date).getDate() }
                                         }));
 
-                                        const costsWithConverted = await fetchAndConvert(
-                                            filteredCosts,
-                                            currency,
-                                            dbWrapper.getExchangeRatesUrl
-                                        );
+                                        const costsWithConverted = await fetchAndConvertWithUrl(dbWrapper, filteredCosts, currency);
 
                                         const total = costsWithConverted.reduce((sum, cost) => {
                                             return sum + cost.convertedAmount;
@@ -212,11 +218,7 @@ window.idb = {
                                                 costDate.getMonth() + 1 === month;
                                         });
 
-                                        const costsWithConverted = await fetchAndConvert(
-                                            filteredCosts,
-                                            currency,
-                                            dbWrapper.getExchangeRatesUrl
-                                        );
+                                        const costsWithConverted = await fetchAndConvertWithUrl(dbWrapper, filteredCosts, currency);
 
                                         const categoryTotals = {};
 
@@ -264,11 +266,7 @@ window.idb = {
                                             return costDate.getFullYear() === year;
                                         });
 
-                                        const costsWithConverted = await fetchAndConvert(
-                                            filteredCosts,
-                                            currency,
-                                            dbWrapper.getExchangeRatesUrl
-                                        );
+                                        const costsWithConverted = await fetchAndConvertWithUrl(dbWrapper, filteredCosts, currency);
 
                                         const monthlyTotals = {};
 
