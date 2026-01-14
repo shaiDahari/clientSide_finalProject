@@ -4,7 +4,8 @@
  * Supports currency conversion with dynamic exchange rates
  */
 
-import { fetchAndConvertWithUrl, DEFAULT_EXCHANGE_URL } from './helperFunctions';
+import { fetchAndConvertWithUrl } from './helperFunctions';
+import { DEFAULT_EXCHANGE_URL } from './constants';
 
 /**
  * Opens and initializes the costs database with object stores

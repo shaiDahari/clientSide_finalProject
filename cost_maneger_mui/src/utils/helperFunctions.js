@@ -2,9 +2,6 @@
  * Helper Functions - Centralized utilities for the Cost Manager application
  * Contains currency conversion, exchange rate fetching, and other shared utilities
  */
-// Export default exchange rate API endpoint for use across application modules
-//
-export const DEFAULT_EXCHANGE_URL = 'https://shaidahari.github.io/exchaneRates_json/exchange-rates.json';
 
 /**
  * Normalize rates object to handle EUR/EURO equivalence

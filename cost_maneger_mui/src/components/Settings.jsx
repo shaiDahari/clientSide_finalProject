@@ -21,7 +21,6 @@ import {
 } from '@mui/material';
 import { Settings as SettingsIcon, Save, Refresh } from '@mui/icons-material';
 import { openCostsDB } from '../utils/idb';
-import {DEFAULT_EXCHANGE_URL} from "../utils/helperFunctions.js";
 
 /**
  * Main Settings component for application configuration

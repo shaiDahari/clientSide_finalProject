@@ -18,18 +18,7 @@ import { PieChart, Pie, Cell, BarChart, Bar,
 } from 'recharts';
 import { openCostsDB } from '../utils/idb';
 import { fetchAndConvertWithUrl } from '../utils/helperFunctions';
-
-// Color palette for chart visualization - 10 distinct colors
-const COLORS = [
-    '#0088FE', '#00C49F', '#FFBB28', '#FF8042', '#8884D8',
-    '#82CA9D', '#FFC658', '#FF6B9D', '#C780E8', '#4ECDC4'
-];
-
-// Month names for user-friendly date display
-const MONTHS = [
-    'January', 'February', 'March', 'April', 'May', 'June',
-    'July', 'August', 'September', 'October', 'November', 'December'
-];
+import { MONTHS, COLORS } from '../utils/constants';
 
 /**
  * Main Dashboard component with expense tracking and visualization
