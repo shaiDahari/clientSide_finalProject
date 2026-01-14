@@ -20,23 +20,7 @@ import {
 } from '@mui/material';
 import { AddCircleOutline } from '@mui/icons-material';
 import { openCostsDB } from '../utils/idb';
-
-// Supported currencies for expense entry (EURO maps to EUR via normalizeRates)
-const CURRENCIES = ['USD', 'EURO', 'GBP', 'ILS'];
-
-// Predefined expense categories for user selection
-const CATEGORIES = [
-    'Food & Dining',
-    'Transportation',
-    'Housing',
-    'Utilities',
-    'Entertainment',
-    'Healthcare',
-    'Shopping',
-    'Education',
-    'Travel',
-    'Other'
-];
+import { CURRENCIES, CATEGORIES } from '../utils/constants';
 
 /**
  * Main CostForm component for expense entry

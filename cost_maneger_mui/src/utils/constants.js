@@ -3,8 +3,10 @@
  * Centralized definitions for currencies, categories, months, colors, and API endpoints
  */
 
+// Supported currencies for expense entry (EURO maps to EUR via normalizeRates)
 export const CURRENCIES = ['USD', 'EURO', 'GBP', 'ILS'];
 
+// Predefined expense categories for user selection
 export const CATEGORIES = [
     'Food & Dining',
     'Transportation',
@@ -12,6 +14,7 @@ export const CATEGORIES = [
     'Utilities',
     'Entertainment',
     'Healthcare',
+    'Sport',
     'Shopping',
     'Education',
     'Travel',
