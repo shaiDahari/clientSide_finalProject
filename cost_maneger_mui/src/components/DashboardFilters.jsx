@@ -1,3 +1,4 @@
+
 /**
  * DashboardFilters Component - Filter controls for dashboard
  * Manages month, year, and currency selection
@@ -13,14 +14,14 @@ import {
 import { MONTHS, CURRENCIES } from '../utils/constants';
 
 const DashboardFilters = ({
-    selectedMonth,
-    setSelectedMonth,
-    selectedYear,
-    setSelectedYear,
-    displayCurrency,
-    setDisplayCurrency,
-    yearOptions
-}) => {
+                              selectedMonth,
+                              setSelectedMonth,
+                              selectedYear,
+                              setSelectedYear,
+                              displayCurrency,
+                              setDisplayCurrency,
+                              yearOptions
+                          }) => {
     return (
         <Paper elevation={2} sx={{ p: { xs: 1.5, sm: 2, md: 3 }, mb: { xs: 2, sm: 3 }, borderRadius: 2 }}>
             <Grid container spacing={{ xs: 1.5, sm: 2 }} alignItems="center">
