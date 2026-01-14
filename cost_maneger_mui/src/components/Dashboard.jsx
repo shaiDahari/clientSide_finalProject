@@ -7,39 +7,14 @@
  */
 
 import { useState, useEffect } from 'react';
-import {
-    Box,
-    Paper,
-    Typography,
-    TextField,
-    MenuItem,
-    Grid,
-    Card,
-    CardContent,
-    CircularProgress,
-    Alert,
-    Table,
-    TableBody,
-    TableCell,
-    TableContainer,
-    TableHead,
-    TableRow,
-    Chip,
-    Tabs,
-    Tab
+import { Box, Paper, Typography, TextField, MenuItem,
+    Grid, Card, CardContent, CircularProgress, Alert,
+    Table, TableBody, TableCell, TableContainer, TableHead,
+    TableRow, Chip, Tabs, Tab
 } from '@mui/material';
-import {
-    PieChart,
-    Pie,
-    Cell,
-    BarChart,
-    Bar,
-    XAxis,
-    YAxis,
-    CartesianGrid,
-    Tooltip,
-    Legend,
-    ResponsiveContainer
+import { PieChart, Pie, Cell, BarChart, Bar,
+    XAxis, YAxis, CartesianGrid, Tooltip,
+    Legend, ResponsiveContainer
 } from 'recharts';
 import { openCostsDB } from '../utils/idb';
 import { fetchAndConvertWithUrl } from '../utils/helperFunctions';
