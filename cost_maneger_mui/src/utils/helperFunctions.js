@@ -39,7 +39,6 @@ export const convertCurrency = function (amount, fromCurrency, toCurrency, rates
 
     // Validate amount is a valid number
     if (typeof amount !== 'number' || isNaN(amount)) {
-        console.warn('Invalid amount for currency conversion:', amount);
         return 0;
     }
 
@@ -52,7 +51,6 @@ export const convertCurrency = function (amount, fromCurrency, toCurrency, rates
 
     // Handle missing exchange rates gracefully
     if (fromRate === undefined || toRate === undefined) {
-        console.warn(`Missing exchange rate for ${fromCurrency} or ${toCurrency}`);
         return amount; // Return original amount as fallback
     }
 

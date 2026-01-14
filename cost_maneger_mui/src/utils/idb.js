@@ -303,12 +303,9 @@ export const openCostsDB = async function (databaseName, databaseVersion) {
                     try {
                         // Try to get custom URL from settings
                         const customUrl = await this.getSetting('exchangeRateUrl');
-                        console.log('Retrieved custom URL:', customUrl);
-                        console.log('Using URL:', customUrl || DEFAULT_EXCHANGE_URL);
                         return customUrl || DEFAULT_EXCHANGE_URL;
                     } catch (error) {
                         // Fall back to default URL if error occurs
-                        console.log('Error getting custom URL, using default:', error);
                         return DEFAULT_EXCHANGE_URL;
                     }
                 }

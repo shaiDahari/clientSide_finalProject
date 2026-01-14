@@ -126,8 +126,7 @@ const Dashboard = ({ refreshTrigger }) => {
             // Sum all converted amounts for monthly total
             return costsWithConverted.reduce((total, cost) => total + cost.convertedAmount, 0);
         } catch (error) {
-            // Log error and return zero as safe fallback
-            console.error('Error calculating total:', error);
+            // Return zero as safe fallback on error
             return 0;
         }
     };

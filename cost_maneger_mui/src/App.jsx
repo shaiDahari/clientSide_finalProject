@@ -90,7 +90,6 @@ const App = () => {
                 }
 
                 setDbError(errorMessage);
-                console.error('Database initialization error:', error);
             }
         };
 
