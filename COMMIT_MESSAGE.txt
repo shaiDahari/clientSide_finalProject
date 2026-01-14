@@ -1,0 +1,44 @@
+docs: Add comprehensive JSDoc and inline comments to component files
+
+Add comprehensive documentation following JSDoc + inline comment style
+to all component files in cost_maneger_mui/src/components. Ensures
+compliance with COMMENTS requirement (comments every 7-8 lines maximum).
+
+Completed tasks:
+
+1. CategoryPieChart.jsx - Added comprehensive inline comments
+   - Component props destructuring explanations
+   - Conditional rendering logic documentation
+   - Chart data transformation comments
+   - Pie chart configuration details
+   - Legend rendering logic explanations
+
+2. DashboardFilters.jsx - Added comprehensive inline comments
+   - Props destructuring documentation
+   - Grid layout structure explanations
+   - TextField configurations comments
+   - Responsive display logic documentation
+
+3. MonthlyCostTable.jsx - Added comprehensive inline comments
+   - Props destructuring explanations
+   - Summary card rendering documentation
+   - Table structure and columns comments
+   - Data mapping and formatting details
+   - Responsive table behavior explanations
+
+4. YearlyBarChart.jsx - Added comprehensive inline comments
+   - Props destructuring documentation
+   - Data transformation for chart comments
+   - Chart configuration details
+   - Empty state handling explanations
+
+5. Dashboard.jsx - Enhanced with additional inline comments
+   - State management explanations
+   - Tab switching logic documentation
+   - Data loading flow comments
+   - UI rendering sections details
+
+All files now follow the established JSDoc + inline comment style
+pattern consistent with idb.js, helperFunctions.js, CostForm.jsx,
+and Settings.jsx.
+

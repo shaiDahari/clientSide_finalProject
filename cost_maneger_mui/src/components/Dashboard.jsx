@@ -2,23 +2,14 @@
  * Dashboard Component - Main data visualization and reporting interface
  * Displays monthly expense reports, category pie charts, and yearly bar charts
  * Handles currency conversion and responsive design for mobile/desktop
- * @param {Object} props.refreshTrigger - Triggers data reload when changed
- * @returns {JSX.Element} Dashboard component with tabbed interface
  */
 
 import { useState, useEffect } from 'react';
 import { Box, Paper, Typography, TextField, MenuItem,
-    Grid, Card, CardContent, CircularProgress, Alert,
-    Table, TableBody, TableCell, TableContainer, TableHead,
-    TableRow, Chip, Tabs, Tab
+    Grid, CircularProgress, Alert, Tabs, Tab
 } from '@mui/material';
-import { PieChart, Pie, Cell, BarChart, Bar,
-    XAxis, YAxis, CartesianGrid, Tooltip,
-    Legend, ResponsiveContainer
-} from 'recharts';
 import { openCostsDB } from '../utils/idb';
 import { fetchAndConvertWithUrl } from '../utils/helperFunctions';
-import { MONTHS, COLORS } from '../utils/constants';
 import DashboardFilters from './DashboardFilters';
 import MonthlyCostTable from './MonthlyCostTable';
 import CategoryPieChart from "./CategoryPieChart.jsx";
@@ -28,6 +19,8 @@ import YearlyBarChart from "./YearlyBarChart.jsx";
  * Main Dashboard component with expense tracking and visualization
  * @param {Object} props - Component props
  * @param {any} props.refreshTrigger - Dependency for triggering data refresh
+ * @param {Object} props.refreshTrigger - Triggers data reload when changed
+ * @returns {JSX.Element} Dashboard component with tabbed interface
  */
 const Dashboard = ({ refreshTrigger }) => {
     // Filter state - user-selected time period and currency
@@ -181,6 +174,7 @@ const Dashboard = ({ refreshTrigger }) => {
     // Generate year options for dropdown (current year and 5 previous years)
     const yearOptions = Array.from({ length: 6 }, (_, i) => new Date().getFullYear() - i);
 
+    // Display loading spinner while data is being fetched
     if (loading) {
         return (
             <Box sx={{ display: 'flex', justifyContent: 'center', alignItems: 'center', minHeight: 400 }}>
@@ -191,6 +185,7 @@ const Dashboard = ({ refreshTrigger }) => {
 
     return (
         <Box sx={{ p: { xs: 1, sm: 2, md: 3 } }}>
+            {/* Filter controls for month, year, and currency selection */}
             <DashboardFilters
                 selectedMonth={selectedMonth}
                 setSelectedMonth={setSelectedMonth}
@@ -201,13 +196,14 @@ const Dashboard = ({ refreshTrigger }) => {
                 yearOptions={yearOptions}
             />
 
+            {/* Display error message if data loading fails */}
             {error && (
                 <Alert severity="error" sx={{ mb: 2 }} onClose={() => setError(null)}>
                     {error}
                 </Alert>
             )}
 
-            {/* Tabs for different views */}
+            {/* Tab navigation for switching between different dashboard views */}
             <Paper elevation={2} sx={{ mb: { xs: 2, sm: 3 }, borderRadius: 2 }}>
                 <Tabs
                     value={activeTab}
@@ -222,16 +218,19 @@ const Dashboard = ({ refreshTrigger }) => {
                         }
                     }}
                 >
+                    {/* Tab 0: Monthly Report - shows full expense table */}
                     <Tab label={<Box sx={{ display: { xs: 'none', sm: 'block' } }}>Monthly Report</Box>}
                          icon={<Box sx={{ display: { xs: 'block', sm: 'none' }, fontSize: '0.75rem' }}>Report</Box>} />
+                    {/* Tab 1: Category Chart - shows pie chart breakdown */}
                     <Tab label={<Box sx={{ display: { xs: 'none', sm: 'block' } }}>Category Chart</Box>}
                          icon={<Box sx={{ display: { xs: 'block', sm: 'none' }, fontSize: '0.75rem' }}>Categories</Box>} />
+                    {/* Tab 2: Yearly Overview - shows bar chart of monthly trends */}
                     <Tab label={<Box sx={{ display: { xs: 'none', sm: 'block' } }}>Yearly Overview</Box>}
                          icon={<Box sx={{ display: { xs: 'block', sm: 'none' }, fontSize: '0.75rem' }}>Yearly</Box>} />
                 </Tabs>
             </Paper>
 
-            {/* Tab 0: Monthly Report */}
+            {/* Tab 0: Monthly Report - detailed expense table with summary */}
             {activeTab === 0 && (
                 <MonthlyCostTable
                     monthlyCosts={monthlyCosts}
@@ -244,7 +243,7 @@ const Dashboard = ({ refreshTrigger }) => {
                 />
             )}
 
-            {/* Tab 1: Category Pie Chart */}
+            {/* Tab 1: Category Pie Chart - visual breakdown by expense category */}
             {activeTab === 1 && (
                 <CategoryPieChart
                     categoryData={categoryData}
@@ -254,7 +253,7 @@ const Dashboard = ({ refreshTrigger }) => {
                 />
             )}
 
-            {/* Tab 2: Yearly Bar Chart */}
+            {/* Tab 2: Yearly Bar Chart - monthly spending trends for selected year */}
             {activeTab === 2 && (
                 <YearlyBarChart
                     monthlyData={monthlyData}
