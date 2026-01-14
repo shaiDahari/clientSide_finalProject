@@ -32,6 +32,7 @@ const MonthlyCostTable = ({
     return (
         <Box>
             <Card sx={{ mb: { xs: 2, sm: 3 }, borderRadius: 2 }}>
+                {/* Tab 0: Monthly Report */}
                 <CardContent sx={{ p: { xs: 2, sm: 3 }, '&:last-child': { pb: { xs: 2, sm: 3 } } }}>
                     <Typography variant="h6" gutterBottom sx={{ fontSize: { xs: '1rem', sm: '1.25rem' } }}>
                         {MONTHS[selectedMonth]} {selectedYear} Summary
