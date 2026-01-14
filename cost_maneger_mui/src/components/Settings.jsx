@@ -269,8 +269,10 @@ const Settings = () => {
                         sx={{ mb: 2 }}
                         helperText="Example: https://api.exchangerate-api.com/v4/latest/USD"
                         size="medium"
-                        InputLabelProps={{
-                            sx: { fontSize: { xs: '0.9rem', sm: '1rem' } }
+                        slotProps={{
+                            inputLabel: {
+                                sx: { fontSize: { xs: '0.9rem', sm: '1rem' } }
+                            }
                         }}
                     />
 

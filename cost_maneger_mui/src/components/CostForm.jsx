@@ -211,9 +211,11 @@ const CostForm = ({ onCostAdded }) => {
                                 min: '0',
                                 style: { fontSize: '1.1rem' }
                             }}
-                            InputLabelProps={{
-                                shrink: true,
-                                sx: { fontSize: '1rem', fontWeight: 500 }
+                            slotProps={{
+                                inputLabel: {
+                                    shrink: true,
+                                    sx: { fontSize: '1rem', fontWeight: 500 }
+                                }
                             }}
                             error={!!validationErrors.sum}
                             helperText={validationErrors.sum || 'Enter the expense amount'}
@@ -234,9 +236,11 @@ const CostForm = ({ onCostAdded }) => {
                             onChange={handleChange}
                             disabled={loading}
                             required
-                            InputLabelProps={{
-                                shrink: true,
-                                sx: { fontSize: '1rem', fontWeight: 500 }
+                            slotProps={{
+                                inputLabel: {
+                                    shrink: true,
+                                    sx: { fontSize: '1rem', fontWeight: 500 }
+                                }
                             }}
                             SelectProps={{
                                 sx: { fontSize: '1.1rem' }
@@ -271,9 +275,11 @@ const CostForm = ({ onCostAdded }) => {
                             helperText={validationErrors.category || 'Select expense category'}
                             disabled={loading}
                             required
-                            InputLabelProps={{
-                                shrink: true,
-                                sx: { fontSize: '1rem', fontWeight: 500 }
+                            slotProps={{
+                                inputLabel: {
+                                    shrink: true,
+                                    sx: { fontSize: '1rem', fontWeight: 500 }
+                                }
                             }}
                             SelectProps={{
                                 sx: { fontSize: '1rem' }
@@ -309,9 +315,11 @@ const CostForm = ({ onCostAdded }) => {
                             helperText={validationErrors.description || 'Provide details about this expense'}
                             disabled={loading}
                             required
-                            InputLabelProps={{
-                                shrink: true,
-                                sx: { fontSize: '1rem', fontWeight: 500 }
+                            slotProps={{
+                                inputLabel: {
+                                    shrink: true,
+                                    sx: { fontSize: '1rem', fontWeight: 500 }
+                                }
                             }}
                             inputProps={{
                                 style: { fontSize: '1rem' }
