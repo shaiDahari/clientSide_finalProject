@@ -256,7 +256,8 @@ const Settings = () => {
                     </Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ mb: 2, fontSize: { xs: '0.8rem', sm: '0.875rem' } }}>
                         Configure a custom URL for fetching real-time exchange rates. If not set or if the URL fails,
-                        the application will use default exchange rates.
+                        the app uses a default API endpoint. Note: Exchange rates may not reflect real-time values
+                        depending on the data source.
                     </Typography>
 
                     <TextField
@@ -331,25 +332,9 @@ const Settings = () => {
                         Default Exchange Rates
                     </Typography>
                     <Typography variant="body2" color="text.secondary" sx={{ mb: 2 }}>
-                        These rates are used when no custom API is configured or when the API is unavailable.
+                        When no custom URL is configured, exchange rates are fetched from the default API endpoint
+                        hosted on GitHub Pages. This ensures currency conversion is always available.
                     </Typography>
-
-                    {/*<Grid container spacing={2}>*/}
-                    {/*    {Object.entries(DEFAULT_EXCHANGE_RATES).map(([currency, rate]) => (*/}
-                    {/*        <Grid item xs={6} sm={3} key={currency}>*/}
-                    {/*            <Card variant="outlined">*/}
-                    {/*                <CardContent>*/}
-                    {/*                    <Typography variant="h6" color="primary">*/}
-                    {/*                        {currency}*/}
-                    {/*                    </Typography>*/}
-                    {/*                    <Typography variant="body2" color="text.secondary">*/}
-                    {/*                        {rate.toFixed(4)}*/}
-                    {/*                    </Typography>*/}
-                    {/*                </CardContent>*/}
-                    {/*            </Card>*/}
-                    {/*        </Grid>*/}
-                    {/*    ))}*/}
-                    {/*</Grid>*/}
                 </Box>
 
                 <Divider sx={{ my: 3 }} />
