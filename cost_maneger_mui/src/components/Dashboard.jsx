@@ -5,9 +5,7 @@
  */
 
 import { useState, useEffect } from 'react';
-import { Box, Paper, Typography, TextField, MenuItem,
-    Grid, CircularProgress, Alert, Tabs, Tab
-} from '@mui/material';
+import { Box, Paper, CircularProgress, Alert, Tabs, Tab } from '@mui/material';
 import { openCostsDB } from '../utils/idb';
 import { fetchAndConvertWithUrl } from '../utils/helperFunctions';
 import DashboardFilters from './DashboardFilters';
@@ -18,8 +16,7 @@ import YearlyBarChart from "./YearlyBarChart.jsx";
 /**
  * Main Dashboard component with expense tracking and visualization
  * @param {Object} props - Component props
- * @param {any} props.refreshTrigger - Dependency for triggering data refresh
- * @param {Object} props.refreshTrigger - Triggers data reload when changed
+ * @param {any} props.refreshTrigger - Triggers data reload when changed
  * @returns {JSX.Element} Dashboard component with tabbed interface
  */
 const Dashboard = ({ refreshTrigger }) => {
@@ -31,7 +28,6 @@ const Dashboard = ({ refreshTrigger }) => {
 
     // Data state - holds processed expense information
     const [monthlyCosts, setMonthlyCosts] = useState([]);
-    const [allCosts, setAllCosts] = useState([]);
     const [categoryData, setCategoryData] = useState([]);
     const [monthlyData, setMonthlyData] = useState([]);
 
@@ -74,21 +70,13 @@ const Dashboard = ({ refreshTrigger }) => {
         setLoading(true);
         setError(null);
 
-
         // Open database connection
         const db = await openCostsDB("costsdb", 1);
         //await db.setSetting('exchangeRateUrl', DEFAULT_EXCHANGE_URL);
 
-
         try {
-            // Fetch all costs and monthly costs concurrently for performance
-            const [allCostsData, monthCostsData] = await Promise.all([
-                db.getAllCosts(),
-                db.getCostsByMonth(selectedMonth, selectedYear)
-            ]);
-
-            // Store all costs for potential future use
-            setAllCosts(allCostsData);
+            // Fetch monthly costs from database
+            const monthCostsData = await db.getCostsByMonth(selectedMonth, selectedYear);
 
             // Convert monthly costs to display currency with current exchange rates
             const costsWithConverted = await fetchAndConvertWithUrl(db, monthCostsData, displayCurrency);

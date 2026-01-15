@@ -14,10 +14,7 @@ import {
     Button,
     Alert,
     CircularProgress,
-    Divider,
-    Card,
-    CardContent,
-    Grid
+    Divider
 } from '@mui/material';
 import { Settings as SettingsIcon, Save, Refresh } from '@mui/icons-material';
 import { openCostsDB } from '../utils/idb';
