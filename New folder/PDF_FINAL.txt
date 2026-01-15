@@ -1,0 +1,54 @@
+﻿# Cost Manager Front-End Project - Submission PDF
+
+================================================================================
+COST MANAGER FRONT-END PROJECT
+Final Project Submission
+================================================================================
+
+## TEAM INFORMATION
+
+**TEAM MANAGER:**
+First Name: [YOUR FIRST NAME]
+Last Name: [YOUR LAST NAME]
+
+**TEAM MEMBERS:**
+1. First Name: [TEAM MEMBER 1 FIRST NAME] | Last Name: [TEAM MEMBER 1 LAST NAME] | ID: [ID] | Mobile: [MOBILE NUMBER] | Email: [EMAIL ADDRESS]
+2. First Name: [TEAM MEMBER 2 FIRST NAME] | Last Name: [TEAM MEMBER 2 LAST NAME] | ID: [ID] | Mobile: [MOBILE NUMBER] | Email: [EMAIL ADDRESS]
+
+## DEPLOYMENT INFORMATION
+
+**Deployment URL:** https://aesthetic-boba-eef086.netlify.app/
+
+**Video Link:** [YOUTUBE UNLISTED VIDEO LINK - ADD AFTER UPLOADING]
+
+## COLLABORATIVE TOOLS SUMMARY
+
+Git and GitHub served as our primary collaboration platform, enabling effective teamwork despite our limited experience. We utilized branching to work on different features simultaneously without conflicts, and merging allowed us to integrate our changes seamlessly. Version control helped us track modifications and revert to previous states when needed. For communication, we used Zoom and Discord for real-time meetings to discuss project requirements and resolve issues. We also leveraged AI tools like NotebookLLM to document meeting notes efficiently. While we considered Slack initially, we found it unnecessary for our small two-person team, as direct communication through video calls proved more effective.
+
+(Word Count: 100 words)
+
+## ADDITIONAL COMMENTS/GUIDELINES
+
+This Cost Manager application is a React-based front-end project built with Material-UI (MUI) for the user interface. The application uses IndexedDB for local data storage and supports multi-currency expense tracking with real-time exchange rate conversion. All data is stored locally in the browser, ensuring user privacy. The application is fully responsive and works on desktop browsers, with optimized mobile support.
+
+**Key Features:**
+- Add expense items with amount, currency, category, and description
+- View detailed monthly reports with currency conversion
+- Visualize expenses with pie charts (by category) and bar charts (monthly trends)
+- Configure custom exchange rate API URLs
+- All data persisted locally using IndexedDB
+
+**Technical Stack:**
+- React 19.2.0
+- Material-UI (MUI) v7.3.6
+- Recharts for data visualization
+- IndexedDB for local storage
+- Vite for build tooling
+
+**Deployment:**
+The application is deployed on Netlify and accessible at: https://aesthetic-boba-eef086.netlify.app/
+
+================================================================================
+CODE FILES
+================================================================================
+

@@ -1,0 +1,9 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(node generate_pdf_content.js:*)",
+      "Bash(node generate_pdf_a4.js:*)",
+      "Bash(node generate_pdf_a4_landscape.js:*)"
+    ]
+  }
+}

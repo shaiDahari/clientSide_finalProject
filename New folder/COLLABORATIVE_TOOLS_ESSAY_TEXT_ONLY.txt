@@ -1,0 +1,7 @@
+Git and GitHub served as our primary collaboration platform, enabling effective teamwork despite our limited experience. 
+We utilized branching to work on different features simultaneously without conflicts, and merging allowed us to integrate our changes seamlessly. 
+Version control helped us track modifications and revert to previous states when needed. For communication, we used Zoom and Discord for real-time 
+meetings to discuss project requirements and resolve issues. 
+We also leveraged AI tools like NotebookLLM to document meeting notes efficiently. While we considered Slack initially,
+we found it unnecessary for our small two-person team, as direct communication through video calls proved more effective.
+
